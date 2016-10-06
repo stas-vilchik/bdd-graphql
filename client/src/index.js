@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
+
 import 'graphiql/graphiql.css';
+import './index.css';
 
 function graphQLFetcher(graphQLParams) {
   return fetch('https://www.graphqlhub.com/graphql', {
