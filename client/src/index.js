@@ -7,7 +7,7 @@ import 'graphiql/graphiql.css';
 import './index.css';
 
 function graphQLFetcher(graphQLParams) {
-  return fetch('https://www.graphqlhub.com/graphql', {
+  return fetch('http://localhost:8080/graphql', {
     method: 'post',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(graphQLParams),
