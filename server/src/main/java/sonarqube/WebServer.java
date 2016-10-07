@@ -25,7 +25,7 @@ public class WebServer {
         System.out.println("Executing " + jsonObj.get("query"));
         Object data = schema.execute((String)jsonObj.get("query")).getData();
         String dataJson = new Gson().toJson(data);
-        return dataJson;
+        return "{\"data\":" + dataJson + "}";
       } catch (Throwable throwable) {
         throwable.printStackTrace();
         res.status(500);
