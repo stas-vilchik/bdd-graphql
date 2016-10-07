@@ -3,6 +3,7 @@ package sonarqube;
 
 import com.google.gson.Gson;
 import graphql.GraphQL;
+import java.util.HashMap;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import spark.Spark;
@@ -23,7 +24,7 @@ public class WebServer {
         System.out.println("got " + json);
         JSONObject jsonObj = (JSONObject) new JSONParser().parse(json);
         System.out.println("Executing " + jsonObj.get("query"));
-        Object data = schema.execute((String)jsonObj.get("query")).getData();
+        Object data = schema.execute((String)jsonObj.get("query"), new HashMap<>()).getData();
         String dataJson = new Gson().toJson(data);
         return "{\"data\":" + dataJson + "}";
       } catch (Throwable throwable) {

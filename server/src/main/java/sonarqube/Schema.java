@@ -7,6 +7,10 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLTypeReference;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.client.HttpConnector;
@@ -58,7 +62,15 @@ public class Schema {
         .type(ruleType)
         .dataFetcher(env -> {
           Issues.Issue issue = (Issues.Issue) env.getSource();
-          return searchRule(issue.getRule());
+
+          Map ruleCache = (Map) env.getContext();
+          String ruleKey = issue.getRule();
+          if (ruleCache.containsKey(ruleKey)) {
+            return ruleCache.get(ruleKey);
+          }
+          Rules.Rule rule = searchRule(ruleKey);
+          ruleCache.put(ruleKey, rule);
+          return rule;
         })
         .build())
       .build();
@@ -73,7 +85,16 @@ public class Schema {
           .name("key")
           .type(new GraphQLNonNull(GraphQLString))
           .build())
-        .dataFetcher(env -> searchRule(env.getArgument("key")))
+        .dataFetcher(env -> {
+          Map ruleCache = (Map) env.getContext();
+          String ruleKey = env.getArgument("key");
+          if (ruleCache.containsKey(ruleKey)) {
+            return ruleCache.get(ruleKey);
+          }
+          Rules.Rule rule = searchRule(ruleKey);
+          ruleCache.put(ruleKey, rule);
+          return rule;
+        })
         .build())
 
       .field(newFieldDefinition()
@@ -83,7 +104,17 @@ public class Schema {
           .name("severity")
           .type(GraphQLString)
           .build())
-        .dataFetcher(env -> searchIssues(new SearchWsRequest().setSeverities(asList((String)env.getArgument("severity")))).getIssuesList())
+        .dataFetcher(env -> {
+          List<Issues.Issue> issues = searchIssues(new SearchWsRequest().setSeverities(asList((String) env.getArgument("severity")))).getIssuesList();
+          if (true) {
+            Set<String> ruleKeys = issues.stream().map(Issues.Issue::getRule).collect(Collectors.toSet());
+            for (String ruleKey : ruleKeys) {
+              Rules.Rule rule = searchRule(ruleKey);
+              ((Map) env.getContext()).put(ruleKey, rule);
+            }
+          }
+          return issues;
+        })
         .build())
 
       .field(newFieldDefinition()
@@ -96,7 +127,6 @@ public class Schema {
     GraphQLSchema schema = GraphQLSchema.newSchema()
       .query(queryType)
       .build();
-
 
     return new GraphQL(schema);
   }
