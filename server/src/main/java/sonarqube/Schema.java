@@ -34,6 +34,11 @@ public class Schema {
         .description("The msg")
         .type(GraphQLString)
         .build())
+      .field(newFieldDefinition()
+        .name("severity")
+        .description("The severity")
+        .type(GraphQLString)
+        .build())
       .build();
 
     GraphQLObjectType queryType = newObject()
