@@ -17,9 +17,9 @@ import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static java.util.Arrays.asList;
 
-public class Main {
+public class Schema {
 
-  public static void main(String[] args) {
+  public static GraphQL create() {
 
     GraphQLObjectType issueType = newObject()
       .name("Issue")
@@ -57,10 +57,12 @@ public class Main {
     GraphQLSchema schema = GraphQLSchema.newSchema()
       .query(queryType)
       .build();
-    Object data = new GraphQL(schema).execute("{issues(severity: \"BLOCKER\") { key, message } }").getData();
 
-    System.out.println(data);
-    // Prints: {hello=world}
+
+    return new GraphQL(schema);
+
+    //Object data = .execute("{issues(severity: \"BLOCKER\") { key, message } }").getData();
+
   }
 
   public static Issues.SearchWsResponse searchIssues(SearchWsRequest request) {
